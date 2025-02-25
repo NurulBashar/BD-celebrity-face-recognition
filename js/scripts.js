@@ -1,34 +1,36 @@
-/*!
-* Start Bootstrap - New Age v6.0.7 (https://startbootstrap.com/theme/new-age)
-* Copyright 2013-2023 Start Bootstrap
-* Licensed under MIT (https://github.com/StartBootstrap/startbootstrap-new-age/blob/master/LICENSE)
-*/
-//
-// Scripts
-// 
+document.addEventListener("DOMContentLoaded", function () {
+    const dropArea = document.getElementById("drop-area");
+    const fileInput = document.getElementById("file-input");
+    const predictBtn = document.getElementById("predict-btn");
+    const resultDiv = document.getElementById("results");
 
-window.addEventListener('DOMContentLoaded', event => {
+    dropArea.addEventListener("click", () => fileInput.click());
+    fileInput.addEventListener("change", handleFile);
 
-    // Activate Bootstrap scrollspy on the main nav element
-    const mainNav = document.body.querySelector('#mainNav');
-    if (mainNav) {
-        new bootstrap.ScrollSpy(document.body, {
-            target: '#mainNav',
-            offset: 74,
-        });
-    };
+    async function handleFile(event) {
+        const file = event.target.files[0];
+        if (!file) return;
+        resultDiv.innerHTML = "<p>Processing...</p>";
 
-    // Collapse responsive navbar when toggler is visible
-    const navbarToggler = document.body.querySelector('.navbar-toggler');
-    const responsiveNavItems = [].slice.call(
-        document.querySelectorAll('#navbarResponsive .nav-link')
-    );
-    responsiveNavItems.map(function (responsiveNavItem) {
-        responsiveNavItem.addEventListener('click', () => {
-            if (window.getComputedStyle(navbarToggler).display !== 'none') {
-                navbarToggler.click();
-            }
-        });
-    });
+        try {
+            const response = await fetch("https://Bashar306-Face-recognition.hf.space/predict", {
+                method: "POST",
+                body: JSON.stringify({ img: file }),
+                headers: { "Content-Type": "application/json" }
+            });
 
+            const data = await response.json();
+            displayResults(data);
+        } catch (error) {
+            resultDiv.innerHTML = "<p>Error processing image</p>";
+        }
+    }
+
+    function displayResults(data) {
+        let output = "<h3>Recognition Results:</h3>";
+        for (const [celebrity, confidence] of Object.entries(data)) {
+            output += `<p>${celebrity}: ${Math.round(confidence * 100)}%</p>`;
+        }
+        resultDiv.innerHTML = output;
+    }
 });
