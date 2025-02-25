@@ -1,17 +1,41 @@
+import { Client } from "@gradio/client";
+
 document.addEventListener("DOMContentLoaded", function () {
     const dropArea = document.getElementById("drop-area");
     const fileInput = document.getElementById("file-input");
     const predictBtn = document.getElementById("predict-btn");
     const resultDiv = document.getElementById("results");
 
-    dropArea.addEventListener("click", () => fileInput.click());
-    fileInput.addEventListener("change", handleFile);
-    predictBtn.addEventListener("click", sendImageToAPI);
-
     let selectedFile = null;
 
-    function handleFile(event) {
-        selectedFile = event.target.files[0];
+    // Prevent default drag behaviors
+    ["dragenter", "dragover", "dragleave", "drop"].forEach(eventName => {
+        dropArea.addEventListener(eventName, (e) => e.preventDefault());
+    });
+
+    // Highlight drop area when file is dragged over
+    ["dragenter", "dragover"].forEach(eventName => {
+        dropArea.addEventListener(eventName, () => dropArea.classList.add("dragging"));
+    });
+
+    ["dragleave", "drop"].forEach(eventName => {
+        dropArea.addEventListener(eventName, () => dropArea.classList.remove("dragging"));
+    });
+
+    // Handle dropped files
+    dropArea.addEventListener("drop", (e) => {
+        let files = e.dataTransfer.files;
+        if (files.length > 0) {
+            handleFile(files[0]);
+        }
+    });
+
+    // Handle file selection
+    dropArea.addEventListener("click", () => fileInput.click());
+    fileInput.addEventListener("change", (e) => handleFile(e.target.files[0]));
+
+    function handleFile(file) {
+        selectedFile = file;
         if (!selectedFile) return;
 
         // Show preview
@@ -30,21 +54,19 @@ document.addEventListener("DOMContentLoaded", function () {
 
         resultDiv.innerHTML = "<p>Processing...</p>";
 
-        const formData = new FormData();
-        formData.append("img", selectedFile);
-
         try {
-            const response = await fetch("https://Bashar306-Face_recognition.hf.space/predict", {
-                method: "POST",
-                body: formData,
+            // Convert file to Blob
+            const fileBlob = new Blob([selectedFile], { type: selectedFile.type });
+
+            // Initialize Gradio client
+            const client = await Client.connect("Bashar306/Face_recognition");
+
+            // Call API
+            const result = await client.predict("/predict", {
+                img: fileBlob,
             });
 
-            if (!response.ok) {
-                throw new Error("Failed to process the image");
-            }
-
-            const data = await response.json();
-            displayResults(data);
+            displayResults(result.data);
         } catch (error) {
             resultDiv.innerHTML = "<p>Error processing image</p>";
             console.error(error);
@@ -58,4 +80,6 @@ document.addEventListener("DOMContentLoaded", function () {
         }
         resultDiv.innerHTML = output;
     }
+
+    predictBtn.addEventListener("click", sendImageToAPI);
 });

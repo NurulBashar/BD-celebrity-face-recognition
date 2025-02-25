@@ -1,25 +1,32 @@
+/* Drag & Drop Box */
 .drag-drop-box {
   border: 2px dashed #3498db;
   padding: 20px;
   text-align: center;
   background-color: #f9f9f9;
   cursor: pointer;
+  transition: background-color 0.3s, border-color 0.3s;
 }
 
-.drag-drop-box:hover {
+.drag-drop-box:hover, 
+.drag-drop-box.dragging {
   background-color: #e3f2fd;
+  border-color: #008cba;
 }
 
+/* Hidden File Input */
 #file-input {
   display: none;
 }
 
+/* General Container */
 .container {
   max-width: 500px;
   margin: auto;
   text-align: center;
 }
 
+/* Upload Button */
 .btn {
   background-color: #3498db;
   color: white;
@@ -27,8 +34,23 @@
   border: none;
   cursor: pointer;
   margin-top: 10px;
+  transition: background-color 0.3s;
 }
 
 .btn:hover {
   background-color: #2980b9;
+}
+
+/* Image Preview */
+#results img {
+  margin-top: 10px;
+  max-width: 100%;
+  border-radius: 5px;
+}
+
+/* Processing Text */
+#results p {
+  font-size: 16px;
+  color: #555;
+  margin-top: 10px;
 }
