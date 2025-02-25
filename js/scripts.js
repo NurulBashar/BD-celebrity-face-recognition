@@ -6,23 +6,48 @@ document.addEventListener("DOMContentLoaded", function () {
 
     dropArea.addEventListener("click", () => fileInput.click());
     fileInput.addEventListener("change", handleFile);
+    predictBtn.addEventListener("click", sendImageToAPI);
 
-    async function handleFile(event) {
-        const file = event.target.files[0];
-        if (!file) return;
+    let selectedFile = null;
+
+    function handleFile(event) {
+        selectedFile = event.target.files[0];
+        if (!selectedFile) return;
+
+        // Show preview
+        const reader = new FileReader();
+        reader.onload = function (e) {
+            resultDiv.innerHTML = `<img src="${e.target.result}" alt="Uploaded Image" width="250"><p>Image Ready for Processing</p>`;
+        };
+        reader.readAsDataURL(selectedFile);
+    }
+
+    async function sendImageToAPI() {
+        if (!selectedFile) {
+            alert("Please upload an image first.");
+            return;
+        }
+
         resultDiv.innerHTML = "<p>Processing...</p>";
 
+        const formData = new FormData();
+        formData.append("img", selectedFile);
+
         try {
-            const response = await fetch("https://Bashar306-Face-recognition.hf.space/predict", {
+            const response = await fetch("https://Bashar306-Face_recognition.hf.space/predict", {
                 method: "POST",
-                body: JSON.stringify({ img: file }),
-                headers: { "Content-Type": "application/json" }
+                body: formData,
             });
+
+            if (!response.ok) {
+                throw new Error("Failed to process the image");
+            }
 
             const data = await response.json();
             displayResults(data);
         } catch (error) {
             resultDiv.innerHTML = "<p>Error processing image</p>";
+            console.error(error);
         }
     }
 

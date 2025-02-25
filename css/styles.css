@@ -5,9 +5,30 @@
   background-color: #f9f9f9;
   cursor: pointer;
 }
+
 .drag-drop-box:hover {
   background-color: #e3f2fd;
 }
+
 #file-input {
   display: none;
+}
+
+.container {
+  max-width: 500px;
+  margin: auto;
+  text-align: center;
+}
+
+.btn {
+  background-color: #3498db;
+  color: white;
+  padding: 10px 15px;
+  border: none;
+  cursor: pointer;
+  margin-top: 10px;
+}
+
+.btn:hover {
+  background-color: #2980b9;
 }
